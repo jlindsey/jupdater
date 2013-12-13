@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<project name="jupdater" default="main" basedir=".">
+  <property environment="env" />
+
+  <!-- Properties -->
+  <property name="build.version"        value="0.0.1" />
+  <property name="build.dir"            value="build" />
+  <property name="src.dir"              location="src" />
+  <property name="resources.dir"        location="resources" />
+  <property name="download.dir"         location="download" />
+  <property name="classes.dir"          location="${build.dir}/classes" />
+  <property name="dist.dir"             location="${build.dir}/dist" />
+  <property name="jar.dir"              location="${dist.dir}/${build.version}" />
+
+  <propertyfile file="build.properties">
+    <entry key="version" value="${build.version}" />
+    <entry key="buldnum" type="int" default="0" operation="+" />
+  </propertyfile>
+
+  <property name="cp.jarjar"
+    location="${download.dir}/jarjar-1.4.jar" />
+  <property name="cp.gson"
+    location="${download.dir}/google-gson-2.2.4/gson-2.2.4.jar" />
+  <property name="cp.guava"
+    location="${download.dir}/guava-15.0.jar" />
+  <property name="cp.log4j.api"
+    location="${download.dir}/apache-log4j-2.0-beta9-bin/log4j-api-2.0-beta9.jar" />
+  <property name="cp.log4j.core"
+    location="${download.dir}/apache-log4j-2.0-beta9-bin/log4j-core-2.0-beta9.jar" />
+  <property name="cp.zip4j"
+    location="${download.dir}/zip4j_1.3.1.jar" />
+
+  <path id="cp.all">
+    <pathelement location="${cp.gson}" />
+    <pathelement location="${cp.guava}" />
+    <pathelement location="${cp.log4j.api}" />
+    <pathelement location="${cp.log4j.core}" />
+    <pathelement location="${cp.zip4j}" />
+  </path>
+
+  <!-- Conditions -->
+  <condition property="out-of-date">
+    <not>
+      <and>
+        <available file="${cp.jarjar}" />
+        <available file="${cp.gson}" />
+        <available file="${cp.guava}" />
+        <available file="${cp.log4j.api}" />
+        <available file="${cp.log4j.core}" />
+        <available file="${cp.zip4j}" />
+      </and>
+    </not>
+  </condition>
+
+  <!-- Tasks -->
+  <mkdir dir="${download.dir}" />
+  <mkdir dir="${build.dir}" />
+
+  <target name="clean">
+    <delete dir="${build.dir}" />
+  </target>
+
+  <target name="clobber" depends="clean">
+    <delete dir="${download.dir}" />
+    <delete file="${src.common.dir}/Config.java" />
+  </target>
+
+  <target name="download-deps" if="out-of-date">
+    <get dest="${download.dir}" usetimestamp="true">
+      <url url="https://jarjar.googlecode.com/files/jarjar-1.4.jar" />
+      <url url="https://google-gson.googlecode.com/files/google-gson-2.2.4-release.zip" />
+      <url url="http://apache.osuosl.org/logging/log4j/2.0-beta9/apache-log4j-2.0-beta9-bin.zip" />
+      <url url="http://search.maven.org/remotecontent?filepath=com/google/guava/guava/15.0/guava-15.0.jar" />
+      <url url="http://goo.gl/GzA2HW" />
+    </get>
+  </target>
+
+  <target name="setup" if="out-of-date" depends="download-deps">
+    <unzip src="${download.dir}/google-gson-2.2.4-release.zip" dest="${download.dir}" />
+    <unzip src="${download.dir}/apache-log4j-2.0-beta9-bin.zip" dest="${download.dir}" />
+    <move file="${download.dir}/remotecontent" tofile="${cp.guava}" />
+    <move file="${download.dir}/GzA2HW" tofile="${cp.zip4j}" />
+  </target>
+
+  <target name="compile" depends="setup">
+    <delete dir="${classes.dir}" />
+    <mkdir dir="${classes.dir}" />
+
+    <javac destdir="${classes.dir}" includeantruntime="false">
+      <src path="${src.dir}" />
+      <classpath refid="cp.all" />
+      <compilerarg value="-Xlint"/>
+    </javac>
+  </target>
+
+  <target name="package" depends="compile">
+    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" 
+      classpath="${cp.jarjar}" />
+    <mkdir dir="${jar.dir}" />
+    <jarjar jarfile="${jar.dir}/Launcher.jar">
+      <fileset dir="${classes.dir}" includes="**/*.class" />
+      <fileset dir="." includes="build.properties" />
+      <fileset dir="${resources.dir}" includes="*" />
+
+      <zipfileset src="${cp.gson}" />
+      <zipfileset src="${cp.guava}" />
+      <zipfileset src="${cp.zip4j}" />
+      <zipfileset src="${cp.log4j.core}" />
+      <zipfileset src="${cp.log4j.api}" />
+
+      <manifest>
+        <attribute name="Main-Class" value="org.lesmothian.jupdater.Main" />
+      </manifest>
+    </jarjar>
+  </target>
+
+  <target name="main" depends="package">
+    <echo message="Built v${build.version} to ${jar.dir}/Launcher.jar" />
+  </target>
+</project>
