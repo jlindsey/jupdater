@@ -3,6 +3,7 @@ package org.lesmothian.jupdater.utils;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.text.DecimalFormat;
 import com.google.common.base.Charsets;
@@ -16,6 +17,30 @@ import org.lesmothian.jupdater.core.Sided;
 import org.lesmothian.jupdater.core.LauncherProfileData;
 
 public final class FileUtils {
+  public static void copyFile(File from, File to) throws java.io.IOException {
+    if (!to.exists()) {
+      to.createNewFile();
+    }
+
+    Closer closer = Closer.create();
+
+    FileInputStream in = closer.register(new FileInputStream(from));
+    FileOutputStream out = closer.register(new FileOutputStream(to));
+
+    try {
+      byte[] buf = new byte[2048];
+      int n = 0;
+
+      while ((n = in.read(buf)) != -1) {
+        out.write(buf, 0, n);
+      }
+
+      out.flush();
+    } finally {
+      closer.close();
+    }
+  }
+
   public static Manifest fetchLocalManifest() throws java.io.IOException {
     String manifestString = Files.asCharSource(OSUtils.getManifestFile(), Charsets.UTF_8).read();
     return JsonUtils.deserializeManifest(manifestString, Sided.Side.LOCAL);
@@ -50,7 +75,7 @@ public final class FileUtils {
   protected static void writeStringToFile(String str, File f)
   throws java.io.IOException {
     File file = OSUtils.getLauncherProfilesFile();
-    
+
     Closer closer = Closer.create();
 
     try {
@@ -65,7 +90,7 @@ public final class FileUtils {
   public static File[] getModFiles() {
     Logger logger = LogManager.getLogger();
     logger.entry();
-    
+
     File modsDir = OSUtils.getModsDirectory();
     logger.debug("Mods Dir: {}", modsDir);
 
@@ -81,7 +106,7 @@ public final class FileUtils {
   public static File[] getConfigFiles() {
     Logger logger = LogManager.getLogger("getConfigFiles");
     logger.entry();
-    
+
     File configsDir = OSUtils.getConfigDirectory();
     logger.debug("Configs Dir: {}", configsDir);
 

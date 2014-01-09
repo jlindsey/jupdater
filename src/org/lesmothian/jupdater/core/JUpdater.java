@@ -50,7 +50,7 @@ public class JUpdater implements Runnable {
     try {
       localManifest = FileUtils.fetchLocalManifest();
     } catch(java.io.FileNotFoundException e) {
-      logger.info("Manifest file not found at {}, assuming fresh install", 
+      logger.info("Manifest file not found at {}, assuming fresh install",
                   OSUtils.getManifestFile());
       localManifest = new Manifest();
     } catch (java.io.IOException e) {
@@ -115,7 +115,7 @@ public class JUpdater implements Runnable {
       profiles = FileUtils.fetchLauncherProfileData();
       logger.info("Read local profiles: {}", this.profiles);
 
-      profiles.setForgeJavaOpts();
+      profiles.installProfile();
       FileUtils.rewriteLauncherProfiles(profiles);
     } catch (Throwable e) {
       logger.error(e);
@@ -135,7 +135,7 @@ public class JUpdater implements Runnable {
         if (localPackFile != null) {
           File localFile = localPackFile.getFile();
           logger.debug("Found {}", localFile);
-          if (localFile.exists()) { 
+          if (localFile.exists()) {
             logger.debug("Deleted {}", localFile);
             localFile.delete();
           }

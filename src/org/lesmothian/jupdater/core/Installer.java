@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.lesmothian.jupdater.utils.OSUtils;
+import org.lesmothian.jupdater.utils.FileUtils;
 
 public class Installer implements Runnable {
   private Logger logger;
@@ -41,6 +42,15 @@ public class Installer implements Runnable {
 
   @Override
   public void run() {
+    File modsDir = OSUtils.getModsDirectory();
+    File configsDir = OSUtils.getConfigDirectory();
 
+    if (!modsDir.exists()) {
+      modsDir.mkdirs();
+    }
+
+    if (!configsDir.exists()) {
+      configsDir.mkdirs();
+    }
   }
 }

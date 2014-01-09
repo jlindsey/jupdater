@@ -27,8 +27,6 @@
     location="${download.dir}/apache-log4j-2.0-beta9-bin/log4j-api-2.0-beta9.jar" />
   <property name="cp.log4j.core"
     location="${download.dir}/apache-log4j-2.0-beta9-bin/log4j-core-2.0-beta9.jar" />
-  <property name="cp.zip4j"
-    location="${download.dir}/zip4j_1.3.1.jar" />
 
   <path id="cp.all">
     <pathelement location="${cp.gson}" />
@@ -47,7 +45,6 @@
         <available file="${cp.guava}" />
         <available file="${cp.log4j.api}" />
         <available file="${cp.log4j.core}" />
-        <available file="${cp.zip4j}" />
       </and>
     </not>
   </condition>
@@ -71,7 +68,6 @@
       <url url="https://google-gson.googlecode.com/files/google-gson-2.2.4-release.zip" />
       <url url="http://apache.osuosl.org/logging/log4j/2.0-beta9/apache-log4j-2.0-beta9-bin.zip" />
       <url url="http://search.maven.org/remotecontent?filepath=com/google/guava/guava/15.0/guava-15.0.jar" />
-      <url url="http://goo.gl/GzA2HW" />
     </get>
   </target>
 
@@ -79,7 +75,6 @@
     <unzip src="${download.dir}/google-gson-2.2.4-release.zip" dest="${download.dir}" />
     <unzip src="${download.dir}/apache-log4j-2.0-beta9-bin.zip" dest="${download.dir}" />
     <move file="${download.dir}/remotecontent" tofile="${cp.guava}" />
-    <move file="${download.dir}/GzA2HW" tofile="${cp.zip4j}" />
   </target>
 
   <target name="compile" depends="setup">
@@ -94,7 +89,7 @@
   </target>
 
   <target name="package" depends="compile">
-    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" 
+    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
       classpath="${cp.jarjar}" />
     <mkdir dir="${jar.dir}" />
     <jarjar jarfile="${jar.dir}/Launcher.jar">
@@ -104,7 +99,6 @@
 
       <zipfileset src="${cp.gson}" />
       <zipfileset src="${cp.guava}" />
-      <zipfileset src="${cp.zip4j}" />
       <zipfileset src="${cp.log4j.core}" />
       <zipfileset src="${cp.log4j.api}" />
 
